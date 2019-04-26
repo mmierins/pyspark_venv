@@ -1,0 +1,10 @@
+charts:
+    - chart:
+      local-instance-image: <image:tag>
+      parcel-values-file: parcel-values.yaml
+      configurable-values:
+          - name: service.some.path2
+            description: a path to service data2
+            label: asdfasdfa2
+            type: string
+            default: /some/path2
