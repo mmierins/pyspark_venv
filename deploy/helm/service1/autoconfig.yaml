@@ -1,10 +1,31 @@
 charts:
-    - chart:
-      local-instance-image: <image:tag>
-      parcel-values-file: parcel-values.yaml
-      configurable-values:
-          - name: service.some.path
-            description: a path to service data
-            label: asdfasdfa
-            type: string
-            default: /some/path
+  - chart:
+    local-instance-image: <image:tag>
+    parcel-values-file: parcel-values.yaml
+    configurable-values:
+    - "name": "email.service.port",
+      "label": "Email service port (nodePort)",
+      "description": "Email service port (nodePort)",
+      "type": "port",
+      "default": "32015"
+    - "name": "email.service.login",
+      "label": "Email service smtp account login",
+      "description": "Email service smtp account login",
+      "type": "string",
+      "default": ""
+    - "name": "email.service.password",
+      "label": "Email service smtp account password",
+      "description": "Email service smtp account password",
+      "type": "string",
+      "sensitive": "true",
+      "default": ""
+    - "name": "email.service.smtp.host",
+      "label": "Email service smtp host",
+      "description": "Email service smtp host",
+      "type": "string",
+      "default": ""
+    - "name": "email.service.smtp.port",
+      "label": "Email service smtp port",
+      "description": "Email service smtp port",
+      "type": "string",
+      "default": ""
