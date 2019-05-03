@@ -3,29 +3,43 @@ charts:
     local-instance-image: <image:tag>
     parcel-values-file: parcel-values.yaml
     configurable-values:
-    - name: email.service.port
-      label: Email service port (nodePort)
-      description: Email service port (nodePort)
-      type: port
-      default: 32015
-    - name: email.service.login
-      label: Email service smtp account login
-      description: Email service smtp account login
-      type: string
-      default:
-    - name: email.service.password
-      label: Email service smtp account password
-      description: Email service smtp account password
-      type: string
-      sensitive: true
-      default:
-    - name: email.service.smtp.host
-      label: Email service smtp host
-      description: Email service smtp host
-      type: string
-      default:
-    - name: email.service.smtp.port
-      label: Email service smtp port
-      description: Email service smtp port
-      type: string
-      default:
+      - name: mongodb.db.pass
+        label: MongoDB database password
+        description: MongoDB database password
+        type: string
+        default: halo
+      - name:  mongodb.node.port
+        label: MongoDB port
+        description: MongoDB port (nodePort)
+        type: port
+        default: 32008
+      - name: mongodb.storage.class
+        label: MongoDB storage class
+        description: Storage class name for volume provisioning for MongoDB
+        type: string
+        default: 
+    validate: |
+      check_property_val_specified_or_abort "$MONGODB_STORAGE_CLASS" "mongodb.storage.class"
+      check_property_val_specified_or_abort "$MONGODB_NODE_PORT" "mongodb.node.port"
+    deploy: |
+       if [ "${DOCKER_REPO_HOST}" != "" ]
+       then
+           MONGODB_IMAGE="mongodb"
+           MONGODB_METRICS_IMAGE="percona-mongodb-exporter"
+           MONGODB_REGISTRY="${DOCKER_REPO_HOST}"
+       else
+           MONGODB_IMAGE="bitnami/mongodb"
+           MONGODB_METRICS_IMAGE="forekshub/percona-mongodb-exporter"
+           MONGODB_REGISTRY="docker.io"
+       fi
+
+       /usr/local/bin/helm upgrade --install mongodb -f "$UT_HALO_PARCEL_HOME/charts/mongodb/values-production.yaml" "$UT_HALO_PARCEL_HOME/charts/mongodb" \
+           --set image.registry="$MONGODB_REGISTRY" \
+           --set image.repository="$MONGODB_IMAGE" \
+           --set metrics.image.registry="$MONGODB_REGISTRY" \
+           --set metrics.image.repository="$MONGODB_METRICS_IMAGE" \
+           --set mongodbPassword="${MONGO_DB_PASS}" \
+           --set service.nodePort="${MONGO_DB_PORT}" \
+           --set persistence.storageClass="${MONGO_DB_STORAGE_CLASS}"
+    undeploy: |
+      /usr/local/bin/helm delete mongodb --purge
