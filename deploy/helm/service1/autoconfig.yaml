@@ -1,6 +1,8 @@
 charts:
   - chart:
-    local-instance-image: <image:tag>
+    local-instance-image:
+      - name: alpine
+      - tag: latest
     parcel-values-file: parcel-values.yaml
     configurable-values:
       - name: mongodb.db.pass
