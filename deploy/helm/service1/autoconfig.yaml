@@ -1,57 +1,50 @@
-charts: 
-  - 
-    chart: ~
-    configurable-values: 
-      - 
-        default: 32015
-        description: "Email service port (nodePort)"
-        label: "Email service port (nodePort)"
-        name: email.service.port
-        type: port
-      - 
-        description: "Email service smtp account login"
-        label: "Email service smtp account login"
-        name: email.service.login
-        sensitive: ""
-        type: string
-      - 
-        default: ""
-        description: "Email service smtp account password"
-        label: "Email service smtp account password"
-        name: email.service.password
-        sensitive: "true"
-        type: string
-      - 
-        default: ""
-        description: "Email service smtp host"
-        label: "Email service smtp host"
-        name: email.service.smtp.host
-        type: string
-      - 
-        default: ""
-        description: "Email service smtp port"
-        label: "Email service smtp port"
-        name: email.service.smtp.port
-        type: string
-    deploy: |
-        /usr/local/bin/helm upgrade --install halo-email-service "$UT_HALO_PARCEL_HOME/charts/email-service" \
-            --set repository="${DOCKER_REPO_HOST}/halo-email-service" \
-            --set service.nodePort="${EMAIL_SERVICE_PORT}" \
-            --set email.address="${EMAIL_SERVICE_LOGIN}" \
-            --set email.password="${EMAIL_SERVICE_PASSWORD}" \
-            --set email.smtp.host="${EMAIL_SERVICE_SMTP_HOST}" \
-            --set email.smtp.port="${EMAIL_SERVICE_SMTP_PORT}"
-    local-instance-image: 
-      - 
-        name: alpine
-      - 
-        tag: latest
+charts:
+  - chart:
     name: email
+    local-instance-image:
+      - name: alpine
+      - tag: latest
     parcel-values-file: parcel-values.yaml
-    undeploy: "/usr/local/bin/helm delete halo-email-service --purge\n"
+    configurable-values:
+      - name: email.service.port
+        label: Email service port (nodePort)
+        description: Email service port (nodePort)
+        type: port
+        default: 32015
+      - name: email.service.login
+        label: Email service smtp account login
+        description: Email service smtp account login
+        type: string
+        sensitive: ''
+      - name: email.service.password
+        label: Email service smtp account password
+        description: Email service smtp account password
+        type: string
+        sensitive: 'true'
+        default: ''
+      - name: email.service.smtp.host
+        label: Email service smtp host
+        description: Email service smtp host
+        type: string
+        default: ''
+      - name: email.service.smtp.port
+        label: Email service smtp port
+        description: Email service smtp port
+        type: string
+        default: ''
     validate: |
-        check_property_val_specified_or_abort "$EMAIL_SERVICE_PORT" "email.service.port"
-        check_property_val_specified_or_abort "$EMAIL_SERVICE_LOGIN" "email.service.login"
-        check_property_val_specified_or_abort "$EMAIL_SERVICE_PASSWORD" "email.service.password"
-        check_property_val_specified_or_abort "$EMAIL_SERVICE_SMTP_HOST" "email.service.smtp.host"
-        check_property_val_specified_or_abort "$EMAIL_SERVICE_SMTP_PORT" "email.service.smtp.port"
+      check_property_val_specified_or_abort "$EMAIL_SERVICE_PORT" "email.service.port"
+      check_property_val_specified_or_abort "$EMAIL_SERVICE_LOGIN" "email.service.login"
+      check_property_val_specified_or_abort "$EMAIL_SERVICE_PASSWORD" "email.service.password"
+      check_property_val_specified_or_abort "$EMAIL_SERVICE_SMTP_HOST" "email.service.smtp.host"
+      check_property_val_specified_or_abort "$EMAIL_SERVICE_SMTP_PORT" "email.service.smtp.port"
+    deploy: |
+      /usr/local/bin/helm upgrade --install halo-email-service "$UT_HALO_PARCEL_HOME/charts/email-service" \
+          --set repository="${DOCKER_REPO_HOST}/halo-email-service" \
+          --set service.nodePort="${EMAIL_SERVICE_PORT}" \
+          --set email.address="${EMAIL_SERVICE_LOGIN}" \
+          --set email.password="${EMAIL_SERVICE_PASSWORD}" \
+          --set email.smtp.host="${EMAIL_SERVICE_SMTP_HOST}" \
+          --set email.smtp.port="${EMAIL_SERVICE_SMTP_PORT}"
+    undeploy: |
+      /usr/local/bin/helm delete halo-email-service --purge
