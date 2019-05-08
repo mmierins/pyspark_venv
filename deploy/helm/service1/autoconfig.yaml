@@ -2,7 +2,7 @@ charts:
   - chart:
     name: email
     local-instance-image:
-      - name: alpine
+      - name: hub.docker.com:5000/alpine
         tag: latest
     parcel-values-file: parcel-values.yaml
     configurable-values:
