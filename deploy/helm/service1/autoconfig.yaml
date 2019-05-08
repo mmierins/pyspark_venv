@@ -2,7 +2,7 @@ charts:
   - chart:
     name: email
     local-instance-image:
-      - name: mysql
+      - name: alpine
         tag: latest
     parcel-values-file: parcel-values.yaml
     configurable-values:
