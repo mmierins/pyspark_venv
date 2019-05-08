@@ -3,7 +3,7 @@ charts:
     name: email
     local-instance-image:
       - name: alpine
-      - tag: latest
+        tag: latest
     parcel-values-file: parcel-values.yaml
     configurable-values:
       - name: email.service.port
