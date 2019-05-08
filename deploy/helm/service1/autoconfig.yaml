@@ -1,47 +1,57 @@
-charts:
-  - chart:
-    local-instance-image:
-      - name: alpine
-      - tag: latest
-    parcel-values-file: parcel-values.yaml
-    configurable-values:
-      - name: mongodb.db.pass
-        label: MongoDB database password
-        description: MongoDB database password
-        type: string
-        default: halo
-      - name:  mongodb.node.port
-        label: MongoDB port
-        description: MongoDB port (nodePort)
+charts: 
+  - 
+    chart: ~
+    configurable-values: 
+      - 
+        default: 32015
+        description: "Email service port (nodePort)"
+        label: "Email service port (nodePort)"
+        name: email.service.port
         type: port
-        default: 32008
-      - name: mongodb.storage.class
-        label: MongoDB storage class
-        description: Storage class name for volume provisioning for MongoDB
+      - 
+        description: "Email service smtp account login"
+        label: "Email service smtp account login"
+        name: email.service.login
+        sensitive: ""
         type: string
-        default: 
-    validate: |
-      check_property_val_specified_or_abort "$MONGODB_STORAGE_CLASS" "mongodb.storage.class"
-      check_property_val_specified_or_abort "$MONGODB_NODE_PORT" "mongodb.node.port"
+      - 
+        default: ""
+        description: "Email service smtp account password"
+        label: "Email service smtp account password"
+        name: email.service.password
+        sensitive: "true"
+        type: string
+      - 
+        default: ""
+        description: "Email service smtp host"
+        label: "Email service smtp host"
+        name: email.service.smtp.host
+        type: string
+      - 
+        default: ""
+        description: "Email service smtp port"
+        label: "Email service smtp port"
+        name: email.service.smtp.port
+        type: string
     deploy: |
-       if [ "${DOCKER_REPO_HOST}" != "" ]
-       then
-           MONGODB_IMAGE="mongodb"
-           MONGODB_METRICS_IMAGE="percona-mongodb-exporter"
-           MONGODB_REGISTRY="${DOCKER_REPO_HOST}"
-       else
-           MONGODB_IMAGE="bitnami/mongodb"
-           MONGODB_METRICS_IMAGE="forekshub/percona-mongodb-exporter"
-           MONGODB_REGISTRY="docker.io"
-       fi
-
-       /usr/local/bin/helm upgrade --install mongodb -f "$UT_HALO_PARCEL_HOME/charts/mongodb/values-production.yaml" "$UT_HALO_PARCEL_HOME/charts/mongodb" \
-           --set image.registry="$MONGODB_REGISTRY" \
-           --set image.repository="$MONGODB_IMAGE" \
-           --set metrics.image.registry="$MONGODB_REGISTRY" \
-           --set metrics.image.repository="$MONGODB_METRICS_IMAGE" \
-           --set mongodbPassword="${MONGO_DB_PASS}" \
-           --set service.nodePort="${MONGO_DB_PORT}" \
-           --set persistence.storageClass="${MONGO_DB_STORAGE_CLASS}"
-    undeploy: |
-      /usr/local/bin/helm delete mongodb --purge
+        /usr/local/bin/helm upgrade --install halo-email-service "$UT_HALO_PARCEL_HOME/charts/email-service" \
+            --set repository="${DOCKER_REPO_HOST}/halo-email-service" \
+            --set service.nodePort="${EMAIL_SERVICE_PORT}" \
+            --set email.address="${EMAIL_SERVICE_LOGIN}" \
+            --set email.password="${EMAIL_SERVICE_PASSWORD}" \
+            --set email.smtp.host="${EMAIL_SERVICE_SMTP_HOST}" \
+            --set email.smtp.port="${EMAIL_SERVICE_SMTP_PORT}"
+    local-instance-image: 
+      - 
+        name: alpine
+      - 
+        tag: latest
+    name: email
+    parcel-values-file: parcel-values.yaml
+    undeploy: "/usr/local/bin/helm delete halo-email-service --purge\n"
+    validate: |
+        check_property_val_specified_or_abort "$EMAIL_SERVICE_PORT" "email.service.port"
+        check_property_val_specified_or_abort "$EMAIL_SERVICE_LOGIN" "email.service.login"
+        check_property_val_specified_or_abort "$EMAIL_SERVICE_PASSWORD" "email.service.password"
+        check_property_val_specified_or_abort "$EMAIL_SERVICE_SMTP_HOST" "email.service.smtp.host"
+        check_property_val_specified_or_abort "$EMAIL_SERVICE_SMTP_PORT" "email.service.smtp.port"
